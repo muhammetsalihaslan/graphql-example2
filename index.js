@@ -18,6 +18,16 @@ const typeDefs = `#graphql
     participants:[Participants!]!
    }
 
+   input CreateEventInput{
+    title:String!
+    desc:String!
+    date:String!
+    from:String!
+    to:String!
+    location_id:ID!
+    user_id:ID!
+   }
+
    type Locations {
     id:ID!
     name:String!
@@ -65,6 +75,8 @@ const typeDefs = `#graphql
     createUser(data:CreateUserInput!):Users!
     updateUser(id:ID! , data:UpdateUserInput!):Users!
     deleteUser(id:ID!):Users!
+    #event
+    createEvent(data:CreateEventInput!):Events!
   }
 `;
 
@@ -102,6 +114,16 @@ const resolvers = {
       users.splice(user_index, 1);
 
       return delete_user;
+    },
+
+    //events
+    createEvent: (parent, { data }) => {
+      const event = {
+        id: nanoid(),
+        ...data,
+      };
+      events.push(event);
+      return event;
     },
   },
   Query: {
