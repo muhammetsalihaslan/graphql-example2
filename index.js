@@ -28,6 +28,16 @@ const typeDefs = `#graphql
     user_id:ID!
    }
 
+   input UpdateEventInput{
+    title:String!
+    desc:String!
+    date:String!
+    from:String!
+    to:String!
+    location_id:ID!
+    user_id:ID!
+   }
+
    type Locations {
     id:ID!
     name:String!
@@ -77,6 +87,7 @@ const typeDefs = `#graphql
     deleteUser(id:ID!):Users!
     #event
     createEvent(data:CreateEventInput!):Events!
+    updateEvent(id:ID! , data:UpdateEventInput!):Events!
   }
 `;
 
@@ -124,6 +135,17 @@ const resolvers = {
       };
       events.push(event);
       return event;
+    },
+
+    updateEvent: (parent, { id, data }) => {
+      const event_index = events.findIndex((event) => event.id == id);
+
+      const updated_event = (events[event_index] = {
+        ...events[event_index],
+        ...data,
+      });
+
+      return updated_event;
     },
   },
   Query: {
