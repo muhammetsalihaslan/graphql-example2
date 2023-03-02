@@ -1,5 +1,6 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
+import { nanoid } from "nanoid";
 import { events, locations, users, participants } from "./data.js";
 const typeDefs = `#graphql
 
@@ -32,6 +33,11 @@ const typeDefs = `#graphql
     events:[Events!]!
    }
 
+   input CreateUserInput{
+    username:String!
+    email:String!
+   }
+
    type Participants{
     id:ID!
     user_id:ID!
@@ -48,9 +54,25 @@ const typeDefs = `#graphql
     participants:[Participants!]!
     participant(id:ID!):Participants!
   }
+
+  type Mutation {
+    #user
+    createUser(data:CreateUserInput!):Users!
+  }
 `;
 
 const resolvers = {
+  Mutation: {
+    //users
+    createUser: (parent, { data }) => {
+      const user = {
+        id: nanoid(),
+        ...data,
+      };
+      users.push(user);
+      return user;
+    },
+  },
   Query: {
     users: () => users,
     user: (parent, args) => users.find((user) => user.id == args.id),
@@ -63,6 +85,7 @@ const resolvers = {
     location: (parent, args) =>
       locations.find((location) => location.id == args.id),
   },
+
   Users: {
     events: (parent) => events.filter((event) => event.user_id == parent.id),
   },
