@@ -38,6 +38,11 @@ const typeDefs = `#graphql
     email:String!
    }
 
+   input UpdateUserInput{
+    username:String!
+    email:String!
+   }
+
    type Participants{
     id:ID!
     user_id:ID!
@@ -58,6 +63,8 @@ const typeDefs = `#graphql
   type Mutation {
     #user
     createUser(data:CreateUserInput!):Users!
+    updateUser(id:ID! , data:UpdateUserInput!):Users!
+    deleteUser(id:ID!):Users!
   }
 `;
 
@@ -71,6 +78,30 @@ const resolvers = {
       };
       users.push(user);
       return user;
+    },
+
+    updateUser: (parent, { id, data }) => {
+      const user_index = users.findIndex((user) => user.id == id);
+
+      if (user_index === -1) {
+        throw new Error("User not found");
+      }
+
+      const updated_user = (users[user_index] = {
+        ...users[user_index],
+        ...data,
+      });
+
+      return updated_user;
+    },
+
+    deleteUser: (parent, { id }) => {
+      const user_index = users.findIndex((user) => user.id == id);
+
+      const delete_user = users[user_index];
+      users.splice(user_index, 1);
+
+      return delete_user;
     },
   },
   Query: {
